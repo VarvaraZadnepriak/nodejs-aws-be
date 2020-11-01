@@ -5,6 +5,11 @@ const serverlessConfiguration: Serverless = {
     name: 'product-service',
   },
   frameworkVersion: '2',
+  plugins: [
+    'serverless-webpack',
+    'serverless-offline',
+    'serverless-aws-documentation'
+  ],
   custom: {
     webpack: {
       webpackConfig: './webpack.config.js',
@@ -12,12 +17,74 @@ const serverlessConfiguration: Serverless = {
     },
     'serverless-offline': {
       httpPort: 8000
+    },
+    documentation: {
+      api: {
+        info: {
+          version: '1',
+          title: 'Product Service API',
+          description: 'Product Service API'
+        }
+      },
+      models: [{
+        name: 'Product',
+        description: 'Product model',
+        contentType: 'application/json',
+        schema: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Product identifier',
+            },
+            title: {
+              type: 'string',
+              description: 'Product title',
+            },
+            description: {
+              type: 'string',
+              description: 'Product description',
+            },
+            price: {
+              type: 'number',
+              description: 'Product price',
+            },
+            imageUrl: {
+              type: 'string',
+              description: 'Product imageUrl',
+            }
+          }
+        }
+      }, {
+        name: 'ProductList',
+        description: 'List of products',
+        contentType: 'application/json',
+        schema: {
+          type: 'array',
+          items: {
+            $ref: '{{model: Product}}'
+          }
+        }
+      }, {
+        name: 'ServiceError',
+        description: 'Service error',
+        contentType: 'application/json',
+        schema: {
+          type: 'object',
+          properties: {
+            statusCode: {
+              type: 'number',
+              description: 'Status code of error'
+            },
+            message: {
+              type: 'string',
+              description: 'Error message'
+            }
+          }
+        }
+      }]
     }
   },
-  plugins: [
-    'serverless-webpack',
-    'serverless-offline'
-  ],
   provider: {
     name: 'aws',
     runtime: 'nodejs12.x',
@@ -39,7 +106,30 @@ const serverlessConfiguration: Serverless = {
             method: 'get',
             path: '/products/{productId}',
             cors: true,
-          }
+            documentation: {
+              description: 'Get product by productId',
+              pathParams: [{
+                name: 'productId',
+                description: 'Product identifier'
+              }],
+              methodResponses: [{
+                statusCode: '200',
+                responseModels: {
+                  'application/json': 'Product'
+                }
+              }, {
+                statusCode: '404',
+                responseModels: {
+                  'application/json': 'ServiceError'
+                }
+              }, {
+                statusCode: '500',
+                responseModels: {
+                  'application/json': 'ServiceError'
+                }
+              }]
+            }
+          } as any
         }
       ]
     },
@@ -51,7 +141,21 @@ const serverlessConfiguration: Serverless = {
             method: 'get',
             path: '/products',
             cors: true,
-          }
+            documentation: {
+              description: 'Get all products',
+              methodResponses: [{
+                statusCode: '200',
+                responseModels: {
+                  'application/json': 'ProductList'
+                }
+              }, {
+                statusCode: '500',
+                responseModels: {
+                  'application/json': 'ServiceError'
+                }
+              }]
+            }
+          } as any
         }
       ]
     }

@@ -1,0 +1,114 @@
+---
+swagger: "2.0"
+info:
+  description: "Product Service API"
+  version: "2020-11-01T17:14:00Z"
+  title: "dev-product-service"
+host: "x1bqrwofsh.execute-api.eu-west-1.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /products:
+    get:
+      description: "Get all products"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/ProductList"
+        500:
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/ServiceError"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /products/{productId}:
+    get:
+      description: "Get product by productId"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "productId"
+        in: "path"
+        description: "Product identifier"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Product"
+        500:
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/ServiceError"
+        404:
+          description: "404 response"
+          schema:
+            $ref: "#/definitions/ServiceError"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+definitions:
+  ProductList:
+    type: "array"
+    description: "List of products"
+    items:
+      $ref: "#/definitions/Product"
+  ServiceError:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+        description: "Error message"
+      statusCode:
+        type: "number"
+        description: "Status code of error"
+    description: "Service error"
+  Product:
+    type: "object"
+    properties:
+      price:
+        type: "number"
+        description: "Product price"
+      imageUrl:
+        type: "string"
+        description: "Product imageUrl"
+      description:
+        type: "string"
+        description: "Product description"
+      id:
+        type: "string"
+        description: "Product identifier"
+      title:
+        type: "string"
+        description: "Product title"
+    description: "Product model"

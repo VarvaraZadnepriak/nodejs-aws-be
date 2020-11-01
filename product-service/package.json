@@ -7,7 +7,8 @@
     "dev": "sls offline",
     "deploy": "sls deploy",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "documentation": "sls downloadDocumentation --outputFileName=openapi.yml"
   },
   "dependencies": {
     "source-map-support": "^0.5.10"
@@ -19,6 +20,7 @@
     "@types/serverless": "^1.72.5",
     "fork-ts-checker-webpack-plugin": "^3.0.1",
     "jest": "^26.6.1",
+    "serverless-aws-documentation": "^1.1.0",
     "serverless-offline": "^6.8.0",
     "serverless-webpack": "^5.2.0",
     "ts-jest": "^26.4.3",
