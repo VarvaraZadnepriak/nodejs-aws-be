@@ -22,11 +22,13 @@ export const lambdaHandler = (controllerCallback: (event: APIGatewayProxyEvent) 
     let result: any;
 
     try {
+      // Logging all params for incoming request -> common for all lambdas
       logger.log('REQ ===>', { pathParameters, queryStringParameters, body });
 
       result = await controllerCallback(event);
       statusCode = HttpCode.OK;
 
+      // Logging response for all lambdas
       logger.log(`RES <=== [${statusCode}]`, body);
     } catch (err) {
       statusCode = err.statusCode || HttpCode.SERVER_ERROR;

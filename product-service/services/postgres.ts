@@ -8,8 +8,7 @@ const pool = new Pool({
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  // TODO: how to handle?
+  logger.error('Unexpected error on idle client', err);
 });
 
 export async function executeQuery<T>(query: string, values?: any[]) {
