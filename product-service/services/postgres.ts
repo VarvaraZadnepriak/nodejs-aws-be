@@ -1,9 +1,10 @@
 import { Pool, PoolClient } from 'pg';
 
+import config from '../config';
 import logger from '../utils/logger.utils';
 
 const pool = new Pool({
-  connectionString: process.env.RS_APP_DB
+  connectionString: config.RS_APP_DB
 });
 
 pool.on('error', (err) => {

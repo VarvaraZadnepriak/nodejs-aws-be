@@ -2,7 +2,7 @@ import { ProductDT } from './product.dt';
 import { HttpCode, HttpError } from '../utils/http.utils';
 import { ProductDB } from '../services/product.db';
 import * as productService from '../services/product.service';
-import { UUID_REGEX } from '../utils/utils';
+import { UUID_REGEX } from '../utils/validation.utils';
 
 /* Mappers */
 
