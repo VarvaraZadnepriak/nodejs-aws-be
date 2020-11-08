@@ -11,12 +11,15 @@
     "documentation": "sls downloadDocumentation --outputFileName=openapi.yml"
   },
   "dependencies": {
+    "pg": "^8.4.2",
+    "serverless-reqvalidator-plugin": "^1.0.3",
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.17",
     "@types/jest": "^26.0.15",
     "@types/node": "^10.12.18",
+    "@types/pg": "^7.14.6",
     "@types/serverless": "^1.72.5",
     "fork-ts-checker-webpack-plugin": "^3.0.1",
     "jest": "^26.6.1",

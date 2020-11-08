@@ -1,5 +1,6 @@
 import {
   APIGatewayProxyEvent,
+  Context,
 } from 'aws-lambda';
 
 import { HttpCode } from '../utils/http.utils';
@@ -12,7 +13,10 @@ const CORS_HEADERS = {
 
 /* Helper to handle base lambda logic */
 export const lambdaHandler = (controllerCallback: (event: APIGatewayProxyEvent) => Promise<any>) =>
-  async (event: APIGatewayProxyEvent) => {
+  async (event: APIGatewayProxyEvent, context: Context) => {
+    /* Need this param for pg pool reusing */
+    context.callbackWaitsForEmptyEventLoop = false;
+  
     const { body, pathParameters, queryStringParameters } = event;
     let statusCode: HttpCode;
     let result: any;

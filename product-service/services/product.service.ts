@@ -1,25 +1,45 @@
-import products from '../data/products.json';
-import { HttpCode, HttpError } from '../utils/http.utils';
-import { Product } from '../types/product';
-import { delay } from '../utils/execution.utils';
+import { executeQuery, executeTransaction } from './postgres';
+import { ProductDB } from './product.db';
 
-const MOCK_DELAY = 300;
+export async function getProducts(): Promise<ProductDB[]> {
+  const res = await executeQuery<ProductDB>(`
+    SELECT id, title, description, price, image_url, count
+    FROM products
+    LEFT JOIN stocks ON products.id = stocks.product_id
+  `);
 
-export async function getProducts(): Promise<Product[]> {
-  return delay(MOCK_DELAY, () => products);
+  return res.rows || [];
 }
 
-export async function getProduct(productId: string): Promise<Product> {
-  return delay(MOCK_DELAY, () => {
-    const product = products.find(product => product.id === productId);
+export async function getProduct(productId: string): Promise<ProductDB> {
+  const res = await executeQuery<ProductDB>(`
+    SELECT id, title, description, price, image_url, count
+    FROM products
+    LEFT JOIN stocks ON products.id = stocks.product_id
+    WHERE id = $1
+  `, [productId]);
 
-    if (!product) {
-      throw new HttpError(
-        HttpCode.NOT_FOUND,
-        `Product with id: ${productId} was not found`
-      );
-    }
+  return res.rows?.[0] || null;
+}
 
-    return product;
+export async function createProduct(product: ProductDB, count: number): Promise<string> {
+  const {title, description, price, image_url} = product;
+
+  return executeTransaction(async (client) => {
+    const productRes = await client.query<{ id: string }>(`
+      INSERT INTO products(title, description, price, image_url)
+      VALUES($1, $2, $3, $4)
+      RETURNING id
+    `, [ title, description, price, image_url ]
+    );
+    const productId = productRes.rows[0].id;
+
+    await client.query(`
+      INSERT INTO stocks(product_id, count)
+      VALUES($1, $2)
+    `, [ productId, count ]
+    );
+
+    return productId;
   });
 }
