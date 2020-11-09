@@ -55,7 +55,8 @@ const serverlessConfiguration: Serverless = {
               type: 'string',
               description: 'Product imageUrl',
             }
-          }
+          },
+          required: ['title', 'count', 'price']
         }
       }, {
         name: 'ProductList',
