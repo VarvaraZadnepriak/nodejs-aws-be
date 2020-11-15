@@ -10,7 +10,7 @@ import { HttpCode, HttpError } from './utils/http.utils';
 export const INCORRECT_FILENAME_MESSAGE = 'File name should be *.csv'; 
 
 export const importProductsFile = lambdaApiGatewayHandler((event: APIGatewayProxyEvent) => {
-  const { name } = event.queryStringParameters;
+  const { name } = event.queryStringParameters || {};
 
   if (!name || !name.endsWith('.csv')) {
     throw new HttpError(HttpCode.BAD_REQUEST, INCORRECT_FILENAME_MESSAGE);
