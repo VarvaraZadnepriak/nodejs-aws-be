@@ -1,5 +1,5 @@
 import { pipeline } from 'stream';
-import * as csv from 'csv-parser';
+import csv from 'csv-parser';
 
 import config from '../config';
 import * as s3 from '../services/s3';

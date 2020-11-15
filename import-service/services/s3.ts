@@ -1,5 +1,9 @@
-import { Endpoint, S3 } from 'aws-sdk';
+import {
+  Endpoint,
+  S3,
+} from 'aws-sdk';
 import { Readable } from 'stream';
+
 import config from '../config';
 import logger from '../utils/logger.utils';
 

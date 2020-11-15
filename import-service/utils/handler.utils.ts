@@ -7,7 +7,7 @@ import {
 import { HttpCode } from '../utils/http.utils';
 import logger from './logger.utils';
 
-const CORS_HEADERS = {
+export const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Credentials': true,
 };
@@ -44,7 +44,7 @@ export const lambdaApiGatewayHandler = (controllerCallback: (event: APIGatewayPr
       return {
         statusCode,
         headers: CORS_HEADERS,
-        body: JSON.stringify(result),
+        body: typeof result !== 'string' ? JSON.stringify(result) : result,
       };
     }
   }
