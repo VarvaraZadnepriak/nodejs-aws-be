@@ -1,6 +1,7 @@
 import {
   APIGatewayProxyEvent,
   Context,
+  SQSEvent,
 } from 'aws-lambda';
 
 import { HttpCode } from '../utils/http.utils';
@@ -45,5 +46,20 @@ export const lambdaHandler = (controllerCallback: (event: APIGatewayProxyEvent) 
         headers: CORS_HEADERS,
         body: JSON.stringify(result),
       };
+    }
+  }
+
+/* Helper to handle sqs lambda logic */
+export const lambdaSQSHandler = (controllerCallback: (event: SQSEvent) => Promise<void>) =>
+  async (event: SQSEvent) => { 
+    try {
+      // Logging all params for incoming request -> common for all lambdas
+      logger.log('SQS EVENT ===>', JSON.stringify(event));
+
+      await controllerCallback(event);
+
+      logger.log('SUCCESS <===');
+    } catch (err) {
+      logger.error('ERR <===', err.message, err.stack);
     }
   }

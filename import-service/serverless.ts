@@ -4,6 +4,8 @@ const S3_LOCAL_HOST = 'localhost';
 const S3_LOCAL_PORT = 4567;
 const S3_LOCAL_ACCESS_KEY = 'S3RVER';
 
+const SQS_QUEUE_NAME = 'catalogItemsQueue';
+
 const PRODUCT_CATALOGUE_S3_BUCKET = 'product-catalogue-2235';
 const UPLOADED_PATH = 'uploaded';
 const PARSED_PATH = 'parsed';
@@ -43,12 +45,43 @@ const serverlessConfiguration: Serverless = {
       PRODUCT_CATALOGUE_S3_BUCKET,
       UPLOADED_PATH,
       PARSED_PATH,
+      SQS_QUEUE_URL: {
+        Ref: 'SQSQueue'
+      },
     },
     iamRoleStatements: [{
       Effect: 'Allow',
       Action: 's3:*',
       Resource: `arn:aws:s3:::${PRODUCT_CATALOGUE_S3_BUCKET}/*`
+    }, {
+      Effect: 'Allow',
+      Action: 'sqs:*',
+      Resource: {
+        'Fn::GetAtt': ['SQSQueue', 'Arn'],
+      }  
     }]
+  },
+  resources: {
+    Resources: {
+      SQSQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: SQS_QUEUE_NAME
+        }
+      },
+    },
+    Outputs: {
+      SQSQueueUrl: {
+        Value: {
+          Ref: 'SQSQueue'
+        }
+      },
+      SQSQueueArn: {
+        Value: {
+          'Fn::GetAtt': ['SQSQueue', 'Arn']
+        }
+      }
+    },
   },
   functions: {
     importProductsFile: {
