@@ -6,6 +6,8 @@ import { UUID_REGEX } from '../utils/validation.utils';
 import loggerUtils from '../utils/logger.utils';
 import * as sns from '../services/sns';
 import config from '../config';
+import { SQSRecord } from 'aws-lambda';
+import * as sqs from '../services/sqs'; 
 
 /* Mappers */
 
@@ -66,12 +68,29 @@ export async function createProduct(product: ProductDT): Promise<string> {
   return productService.createProduct(mappedProduct, count);
 }
 
-export async function createBatchProduct(products: ProductDT[]): Promise<void>{
-  await Promise.all(products.map(createProduct));
+export async function createBatchProduct(products: ProductDT[], records: SQSRecord[]): Promise<void> {  
+  const results = await Promise.allSettled(products.map((product) => createProduct(product)));
 
-  await sns.publishSNSMessage({
-    Subject: 'New products are added!',
-    Message: JSON.stringify(products),
-    TopicArn: config.SNS_TOPIC_ARN,
-  });
+  for (let index = 0; index < results.length; index++) {
+    const result = results[index];
+    const isSuccess = result.status === 'fulfilled';
+    const product = products[index];
+    
+    if (isSuccess) {
+      await sqs.deleteMessage(records[index])
+        .catch(() => loggerUtils.error('deleteMessage'));
+    }
+
+    await sns.publishSNSMessage({
+      Subject: isSuccess ? 'New product added' : 'New product FAIL',
+      Message: JSON.stringify(products[index]),
+      TopicArn: config.SNS_TOPIC_ARN,
+      MessageAttributes: {
+        price: {
+          DataType: 'Number',
+          StringValue: `${product.price}`
+        }
+      }
+    }).catch(() => loggerUtils.error('publishSNSMessage'));
+  }
 }

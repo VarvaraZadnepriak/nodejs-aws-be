@@ -110,7 +110,7 @@ const serverlessConfiguration: Serverless = {
       RS_APP_DB: '${ssm:rs-app-db}',
       SNS_TOPIC_ARN: {
         Ref: 'SNSTopic'
-      },
+      }
     },
     iamRoleStatements: [{
       Effect: 'Allow',
@@ -118,6 +118,10 @@ const serverlessConfiguration: Serverless = {
       Resource: {
         Ref: 'SNSTopic'
       }
+    }, {
+      Effect: 'Allow',
+      Action: 'sqs:*',
+      Resource: '${cf:import-service-${self:provider.stage}.SQSQueueArn}'
     }]
   },
   functions: {

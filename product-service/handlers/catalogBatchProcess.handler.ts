@@ -5,7 +5,7 @@ import * as productCtrl from '../controllers/product.ctrl';
 import { ProductDT } from '../controllers/product.dt';
 
 export const catalogBatchProcess = lambdaSQSHandler(async (event: SQSEvent) => {
-  const products:ProductDT[] = event.Records.map(record => JSON.parse(record.body));
+  const products: ProductDT[] = event.Records.map(record => JSON.parse(record.body));
 
-  await productCtrl.createBatchProduct(products);
+  await productCtrl.createBatchProduct(products, event.Records);
 });
