@@ -1,15 +1,5 @@
 import type { Serverless } from 'serverless/aws';
 
-const S3_LOCAL_HOST = 'localhost';
-const S3_LOCAL_PORT = 4567;
-const S3_LOCAL_ACCESS_KEY = 'S3RVER';
-
-const SQS_QUEUE_NAME = 'catalogItemsQueue';
-
-const PRODUCT_CATALOGUE_S3_BUCKET = 'product-catalogue-2235';
-const UPLOADED_PATH = 'uploaded';
-const PARSED_PATH = 'parsed';
-
 const serverlessConfiguration: Serverless = {
   service: 'import-service',
   frameworkVersion: '2',
@@ -19,14 +9,14 @@ const serverlessConfiguration: Serverless = {
       includeModules: true
     },
     s3: {
-      host: S3_LOCAL_HOST,
-      port: S3_LOCAL_PORT,
-      region: S3_LOCAL_HOST,
+      host: '${env:S3_LOCAL_HOST}',
+      port: '${env:S3_LOCAL_PORT}',
     },
   },
   // Add the serverless-webpack plugin
   plugins: [
     'serverless-webpack',
+    'serverless-dotenv-plugin',
     'serverless-s3-local',
     'serverless-offline',
   ],
@@ -39,12 +29,12 @@ const serverlessConfiguration: Serverless = {
       minimumCompressionSize: 1024,
     },
     environment: {
-      S3_LOCAL_HOST,
-      S3_LOCAL_PORT,
-      S3_LOCAL_ACCESS_KEY,
-      PRODUCT_CATALOGUE_S3_BUCKET,
-      UPLOADED_PATH,
-      PARSED_PATH,
+      S3_LOCAL_HOST: '${env:S3_LOCAL_HOST}',
+      S3_LOCAL_PORT: '${env:S3_LOCAL_PORT}',
+      S3_LOCAL_ACCESS_KEY: '${env:S3_LOCAL_ACCESS_KEY}',
+      PRODUCT_CATALOGUE_S3_BUCKET: '${env:PRODUCT_CATALOGUE_S3_BUCKET}',
+      UPLOADED_PATH: '${env:UPLOADED_PATH}',
+      PARSED_PATH: '${env:PARSED_PATH}',
       SQS_QUEUE_URL: {
         Ref: 'SQSQueue'
       },
@@ -52,7 +42,7 @@ const serverlessConfiguration: Serverless = {
     iamRoleStatements: [{
       Effect: 'Allow',
       Action: 's3:*',
-      Resource: `arn:aws:s3:::${PRODUCT_CATALOGUE_S3_BUCKET}/*`
+      Resource: 'arn:aws:s3:::${env:PRODUCT_CATALOGUE_S3_BUCKET}/*'
     }, {
       Effect: 'Allow',
       Action: 'sqs:*',
@@ -66,7 +56,7 @@ const serverlessConfiguration: Serverless = {
       SQSQueue: {
         Type: 'AWS::SQS::Queue',
         Properties: {
-          QueueName: SQS_QUEUE_NAME
+          QueueName: '${env:SQS_QUEUE_NAME}'
         }
       },
     },
@@ -105,10 +95,10 @@ const serverlessConfiguration: Serverless = {
       handler: 'handler.parseProductsFiles',
       events: [{
         s3: {
-          bucket: PRODUCT_CATALOGUE_S3_BUCKET,
+          bucket: '${env:PRODUCT_CATALOGUE_S3_BUCKET}',
           event: 's3:ObjectCreated:*',
           rules: [{
-            prefix: UPLOADED_PATH,
+            prefix: '${env:UPLOADED_PATH}',
             suffix: '.csv',
           }],
           existing: true,
