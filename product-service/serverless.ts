@@ -1,7 +1,5 @@
 import type { Serverless } from 'serverless/aws';
 
-const SNS_TOPIC_NAME = 'createProductTopic';
-
 const serverlessConfiguration: Serverless = {
   service: {
     name: 'product-service',
@@ -9,6 +7,7 @@ const serverlessConfiguration: Serverless = {
   frameworkVersion: '2',
   plugins: [
     'serverless-webpack',
+    'serverless-dotenv-plugin',
     'serverless-offline',
     'serverless-reqvalidator-plugin',
     'serverless-aws-documentation'
@@ -270,13 +269,13 @@ const serverlessConfiguration: Serverless = {
       SNSTopic: {
         Type: 'AWS::SNS::Topic',
         Properties: {
-          TopicName: SNS_TOPIC_NAME,
+          TopicName: '${env:SNS_TOPIC_NAME}',
         }
       },
       SNSCheapBooksSubscription: {
         Type: 'AWS::SNS::Subscription',
         Properties: {
-          Endpoint: 'Varvara_Semicheva@epam.com',
+          Endpoint: '${env:SNS_EMAIL_SUBSCRIPTION_1}',
           Protocol: 'email',
           TopicArn: {
             Ref: 'SNSTopic'
@@ -287,7 +286,7 @@ const serverlessConfiguration: Serverless = {
       SNSExpensiveBooksSubscription: {
         Type: 'AWS::SNS::Subscription',
         Properties: {
-          Endpoint: 'saina5555@mail.ru',
+          Endpoint: '${env:SNS_EMAIL_SUBSCRIPTION_2}',
           Protocol: 'email',
           TopicArn: {
             Ref: 'SNSTopic'
