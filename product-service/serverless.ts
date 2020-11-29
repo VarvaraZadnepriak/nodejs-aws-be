@@ -7,6 +7,7 @@ const serverlessConfiguration: Serverless = {
   frameworkVersion: '2',
   plugins: [
     'serverless-webpack',
+    'serverless-dotenv-plugin',
     'serverless-offline',
     'serverless-reqvalidator-plugin',
     'serverless-aws-documentation'
@@ -105,8 +106,22 @@ const serverlessConfiguration: Serverless = {
       minimumCompressionSize: 1024,
     },
     environment: {
-      RS_APP_DB: '${ssm:rs-app-db}'
+      RS_APP_DB: '${ssm:rs-app-db}',
+      SNS_TOPIC_ARN: {
+        Ref: 'SNSTopic'
+      }
     },
+    iamRoleStatements: [{
+      Effect: 'Allow',
+      Action: 'sns:*',
+      Resource: {
+        Ref: 'SNSTopic'
+      }
+    }, {
+      Effect: 'Allow',
+      Action: 'sqs:*',
+      Resource: '${cf:import-service-${self:provider.stage}.SQSQueueArn}'
+    }]
   },
   functions: {
     getProduct: {
@@ -212,6 +227,17 @@ const serverlessConfiguration: Serverless = {
           } as any
         }
       ],
+    },
+    catalogBatchProcess: {
+      handler: 'handler.catalogBatchProcess',
+      events: [
+        {
+         sqs: {
+           batchSize: 5,
+           arn: '${cf:import-service-${self:provider.stage}.SQSQueueArn}'
+         }
+        }
+      ]
     }
   },
   resources: {
@@ -238,6 +264,34 @@ const serverlessConfiguration: Serverless = {
           ResponseTemplates: {
             'application/json': `{"statusCode": 400, "message": "[$context.error.message]: $context.error.validationErrorString"}`
           }
+        }
+      },
+      SNSTopic: {
+        Type: 'AWS::SNS::Topic',
+        Properties: {
+          TopicName: '${env:SNS_TOPIC_NAME}',
+        }
+      },
+      SNSCheapBooksSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: '${env:SNS_EMAIL_SUBSCRIPTION_1}',
+          Protocol: 'email',
+          TopicArn: {
+            Ref: 'SNSTopic'
+          },
+          FilterPolicy: '{"price": [{"numeric": ["<", 10]}]}',
+        }
+      },
+      SNSExpensiveBooksSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: '${env:SNS_EMAIL_SUBSCRIPTION_2}',
+          Protocol: 'email',
+          TopicArn: {
+            Ref: 'SNSTopic'
+          },
+          FilterPolicy: '{"price": [{"numeric": [">=", 10]}]}',
         }
       }
     }
