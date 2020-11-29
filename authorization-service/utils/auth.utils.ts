@@ -2,6 +2,11 @@ import logger from './logger.utils';
 
 export const BasicScheme = 'Basic';
 
+export enum AuthorizerType {
+  Token = 'TOKEN',
+  Request = 'REQUEST',
+}
+
 export enum StatementEffect {
   Allow = 'Allow',
   Deny = 'Deny' 

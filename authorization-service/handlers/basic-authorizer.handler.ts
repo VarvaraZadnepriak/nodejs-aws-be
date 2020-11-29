@@ -7,6 +7,7 @@ import logger from '../utils/logger.utils';
 import {
   BasicScheme,
   StatementEffect,
+  AuthorizerType,
   decodeBasicToken,
   generatePolicy,
 } from '../utils/auth.utils';
@@ -15,7 +16,11 @@ export const basicAuthorizer: APIGatewayAuthorizerHandler = async (event: APIGat
   logger.log(`Event ===>`, event);
 
   try {
-    const { authorizationToken, methodArn } = event;
+    const { authorizationToken, methodArn, type } = event;
+
+    if (type !== AuthorizerType.Token) {
+      throw new Error('Basic authorizer supports only token authorization type');
+    }
 
     logger.log('Authorization Token: ', authorizationToken);
 
