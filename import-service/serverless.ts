@@ -13,12 +13,12 @@ const serverlessConfiguration: Serverless = {
       port: '${env:S3_LOCAL_PORT}',
     },
   },
-  // Add the serverless-webpack plugin
   plugins: [
     'serverless-webpack',
     'serverless-dotenv-plugin',
     'serverless-s3-local',
     'serverless-offline',
+    'serverless-pseudo-parameters',
   ],
   provider: {
     name: 'aws',
@@ -81,6 +81,13 @@ const serverlessConfiguration: Serverless = {
           method: 'get',
           path: '/import',
           cors: true,
+          authorizer: {
+            name: 'basicAuthorizer',
+            arn: 'arn:aws:lambda:${self:provider.region}:#{AWS::AccountId}:function:authorization-service-${self:provider.stage}-basicAuthorizer',
+            resultTtlInSeconds: 0,
+            identitySource: 'method.request.header.Authorization',
+            type: 'token',
+          },
           request: {
             parameters: {
               querystrings: {
