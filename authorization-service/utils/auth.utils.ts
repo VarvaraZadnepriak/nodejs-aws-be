@@ -1,6 +1,6 @@
 import logger from './logger.utils';
 
-const BasicScheme = 'Basic';
+export const BasicScheme = 'Basic';
 
 export enum StatementEffect {
   Allow = 'Allow',
@@ -13,15 +13,7 @@ export type Credentials = {
 }
 
 export function decodeBasicToken(authorizationToken: string): Credentials {
-  logger.log('Authorization Token: ', authorizationToken);
-
-  const [ schema, encodedCredentials ] = authorizationToken.split(' ');
-
-  if (schema !== BasicScheme) {
-    throw new Error('Token contains incorrect scheme for basic authorizer');
-  }
-  
-  const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
+  const decodedCredentials = Buffer.from(authorizationToken, 'base64').toString('utf-8');
 
   logger.log('Decoded credentials: ', decodedCredentials);
 

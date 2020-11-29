@@ -5,6 +5,7 @@ import {
 
 import logger from '../utils/logger.utils';
 import {
+  BasicScheme,
   StatementEffect,
   decodeBasicToken,
   generatePolicy,
@@ -15,9 +16,20 @@ export const basicAuthorizer: APIGatewayAuthorizerHandler = async (event: APIGat
 
   try {
     const { authorizationToken, methodArn } = event;
-    const { username, password } = decodeBasicToken(authorizationToken);
+
+    logger.log('Authorization Token: ', authorizationToken);
+
+    const [ schema, encodedCredentials ] = authorizationToken.split(' ');
+  
+    if (schema !== BasicScheme) {
+      logger.log('Token contains incorrect scheme for basic authorizer');
+
+      return generatePolicy('none', methodArn, StatementEffect.Deny)
+    }
+
+    const { username, password } = decodeBasicToken(encodedCredentials);
     
-    return process.env[username] === password
+    return username && password && process.env[username] === password
       ? generatePolicy(username, methodArn, StatementEffect.Allow)
       : generatePolicy(username, methodArn, StatementEffect.Deny);
   } catch (error) {
