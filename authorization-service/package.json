@@ -1,35 +1,21 @@
 {
-  "name": "import-service",
+  "name": "authorization-service",
   "version": "1.0.0",
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
   "scripts": {
-    "dev": "sls offline",
-    "deploy": "sls deploy",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "deploy": "sls deploy"
   },
   "dependencies": {
-    "aws-sdk": "^2.792.0",
-    "csv-parser": "^2.3.3",
-    "source-map-support": "^0.5.10",
-    "through2": "^4.0.2"
+    "source-map-support": "^0.5.10"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.17",
-    "@types/jest": "^26.0.15",
     "@types/node": "^10.12.18",
     "@types/serverless": "^1.72.5",
-    "@types/through2": "^2.0.36",
-    "aws-sdk-mock": "^5.1.0",
     "fork-ts-checker-webpack-plugin": "^3.0.1",
-    "jest": "^26.6.3",
-    "serverless": "^2.13.0",
     "serverless-dotenv-plugin": "^3.1.0",
-    "serverless-offline": "^6.8.0",
-    "serverless-s3-local": "^0.6.7",
     "serverless-webpack": "^5.2.0",
-    "ts-jest": "^26.4.4",
     "ts-loader": "^5.3.3",
     "ts-node": "^8.10.2",
     "typescript": "^3.2.4",

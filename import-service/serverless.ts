@@ -13,7 +13,6 @@ const serverlessConfiguration: Serverless = {
       port: '${env:S3_LOCAL_PORT}',
     },
   },
-  // Add the serverless-webpack plugin
   plugins: [
     'serverless-webpack',
     'serverless-dotenv-plugin',
@@ -59,6 +58,19 @@ const serverlessConfiguration: Serverless = {
           QueueName: '${env:SQS_QUEUE_NAME}'
         }
       },
+      GatewayResponseDefault4XX: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+          ResponseType: 'DEFAULT_4XX',
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
+          },
+        },
+      },
     },
     Outputs: {
       SQSQueueUrl: {
@@ -81,6 +93,13 @@ const serverlessConfiguration: Serverless = {
           method: 'get',
           path: '/import',
           cors: true,
+          authorizer: {
+            name: 'basicAuthorizer',
+            arn: '${cf:authorization-service-${self:provider.stage}.BasicAuthorizerArn}',
+            resultTtlInSeconds: 0,
+            identitySource: 'method.request.header.Authorization',
+            type: 'token',
+          },
           request: {
             parameters: {
               querystrings: {
